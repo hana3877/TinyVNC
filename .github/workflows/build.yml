@@ -16,17 +16,13 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Install 3DS development tools
-        run: |
-          pacman -Syu --noconfirm
-          pacman -S --needed --noconfirm 3ds-dev
-
-      - name: Check compiler
+      - name: Check 3DS development tools
         run: |
           echo "DEVKITARM=$DEVKITARM"
-          ls -l "$DEVKITARM/bin"
+          ls -l "$DEVKITARM/bin/arm-none-eabi-gcc"
           "$DEVKITARM/bin/arm-none-eabi-gcc" --version
-
+          command -v dkp-pacman
+          
       - name: Build TinyVNC
         run: |
           export PATH="$DEVKITARM/bin:$PATH"
