@@ -1,0 +1,35 @@
+
+name: Build TinyVNC CIA
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: devkitpro/devkitarm:latest
+
+    steps:
+      - name: Download source
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Check tools
+        run: |
+          echo "DEVKITARM=$DEVKITARM"
+          arm-none-eabi-gcc --version
+          command -v makerom
+          command -v bannertool
+
+      - name: Build TinyVNC
+        run: make -j2
+
+      - name: Upload CIA
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: TinyVNC-CIA
+          path: TinyVNC.cia
+          if-no-files-found: error
