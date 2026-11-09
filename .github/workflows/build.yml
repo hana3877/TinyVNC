@@ -23,9 +23,16 @@ jobs:
           "$DEVKITARM/bin/arm-none-eabi-gcc" --version
           command -v dkp-pacman
           
+      - name: Install CIA tools
+        run: |
+          dkp-pacman -S --needed --noconfirm 3ds-tools
+          export PATH="/opt/devkitpro/tools/bin:$PATH"
+          command -v bannertool
+          command -v makerom
+
       - name: Build TinyVNC
         run: |
-          export PATH="$DEVKITARM/bin:$PATH"
+          export PATH="/opt/devkitpro/tools/bin:$DEVKITARM/bin:$PATH"
           make -j2
 
       - name: Upload CIA
