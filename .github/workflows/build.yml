@@ -17,14 +17,15 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Check 3DS development tools
+      - name: Check 3DS compiler
         run: |
           echo "DEVKITARM=$DEVKITARM"
-          ls -l "$DEVKITARM/bin/arm-none-eabi-gcc"
           "$DEVKITARM/bin/arm-none-eabi-gcc" --version
 
       - name: Install CIA tools
+        shell: bash
         run: |
+          set -e
           mkdir -p "$HOME/cia-tools"
 
           curl -fL \
@@ -35,21 +36,28 @@ jobs:
             linux-x86_64/bannertool \
             -d "$HOME/cia-tools"
 
-          curl -fL \
-            https://github.com/3DSGuy/Project_CTR/releases/download/makerom-v0.19.0/makerom-v0.19.0-ubuntu_x86_64.zip \
-            -o /tmp/makerom.zip
-
-          unzip -jo /tmp/makerom.zip \
-            makerom \
-            -d "$HOME/cia-tools"
-
           chmod +x "$HOME/cia-tools/bannertool"
+
+          echo "Building makerom from source"
+
+          git clone --recursive \
+            https://github.com/3DSGuy/Project_CTR.git \
+            /tmp/Project_CTR
+
+          cd /tmp/Project_CTR
+          make -C makerom deps program
+
+          cp makerom/bin/makerom "$HOME/cia-tools/makerom"
           chmod +x "$HOME/cia-tools/makerom"
 
+          echo "Checking CIA tools"
           ls -lh "$HOME/cia-tools"
+          ldd "$HOME/cia-tools/makerom"
 
       - name: Build TinyVNC
+        shell: bash
         run: |
+          set -e
           export PATH="$HOME/cia-tools:$DEVKITARM/bin:$PATH"
 
           command -v bannertool
