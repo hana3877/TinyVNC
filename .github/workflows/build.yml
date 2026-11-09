@@ -7,6 +7,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     container:
       image: devkitpro/devkitarm:latest
 
@@ -21,18 +22,39 @@ jobs:
           echo "DEVKITARM=$DEVKITARM"
           ls -l "$DEVKITARM/bin/arm-none-eabi-gcc"
           "$DEVKITARM/bin/arm-none-eabi-gcc" --version
-          command -v dkp-pacman
-          
+
       - name: Install CIA tools
         run: |
-          dkp-pacman -S --needed --noconfirm 3ds-tools
-          export PATH="/opt/devkitpro/tools/bin:$PATH"
-          command -v bannertool
-          command -v makerom
+          mkdir -p "$HOME/cia-tools"
+
+          curl -fL \
+            https://github.com/Epicpkmn11/bannertool/releases/download/v1.2.2/bannertool.zip \
+            -o /tmp/bannertool.zip
+
+          unzip -jo /tmp/bannertool.zip \
+            linux-x86_64/bannertool \
+            -d "$HOME/cia-tools"
+
+          curl -fL \
+            https://github.com/3DSGuy/Project_CTR/releases/download/makerom-v0.19.0/makerom-v0.19.0-ubuntu_x86_64.zip \
+            -o /tmp/makerom.zip
+
+          unzip -jo /tmp/makerom.zip \
+            makerom \
+            -d "$HOME/cia-tools"
+
+          chmod +x "$HOME/cia-tools/bannertool"
+          chmod +x "$HOME/cia-tools/makerom"
+
+          ls -lh "$HOME/cia-tools"
 
       - name: Build TinyVNC
         run: |
-          export PATH="/opt/devkitpro/tools/bin:$DEVKITARM/bin:$PATH"
+          export PATH="$HOME/cia-tools:$DEVKITARM/bin:$PATH"
+
+          command -v bannertool
+          command -v makerom
+
           make -j2
 
       - name: Upload CIA
