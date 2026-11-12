@@ -473,7 +473,7 @@ int dsu_server_update(struct dsu_server *server, u32 but, circlePosition *posCp,
 			i=((i+server->coeffs.cp_max) * 128) / server->coeffs.cp_max;
 			sbuf[40] = i>255?255:i;
 			// Left stick Y (plus upward, 128=neutral)
-			i=dsu_server_transform(data.posCp_y / count, server->coeffs.cp_deadzone, server->coeffs.cp_max, server->coeffs.cp_threshold);
+			i=-dsu_server_transform(data.posCp_y / count, server->coeffs.cp_deadzone, server->coeffs.cp_max, server->coeffs.cp_threshold);
 			i=((i+server->coeffs.cp_max) * 128) / server->coeffs.cp_max;
 			sbuf[41] = i>255?255:i;
 		}
